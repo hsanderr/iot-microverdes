@@ -15,6 +15,7 @@
 
 #include "wifi.h"
 #include "web_server.h"
+#include "tasks.h"
 
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 
@@ -32,6 +33,6 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    WiFi__Initialize();
+    Tasks__CreateAll();
     WebServer__Initialize();
 }

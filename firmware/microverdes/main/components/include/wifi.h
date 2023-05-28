@@ -12,7 +12,21 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-void WiFi__ChangeWiFi(void);
-void WiFi__Initialize(void);
+typedef enum
+{
+    wifi_uninitialized,
+    wifi_initializing,
+    wifi_disconnected,
+    wifi_connecting,
+    wifi_connected,
+    wifi_idle,
+    wifi_waiting,
+} wifi_status_t;
+
+extern wifi_status_t wifi_status;
+
+void Wifi__ChangeWiFi(char *ssid, char *pwd);
+esp_err_t Wifi__Initialize(void);
+void Wifi__Task(void *arg);
 
 #endif

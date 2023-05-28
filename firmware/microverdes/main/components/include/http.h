@@ -12,4 +12,12 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+typedef enum
+{
+    http_uninitialized,
+    http_idle,
+} http_status_t;
+
+void Http__Task(void *arg);
+
 #endif
