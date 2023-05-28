@@ -32,50 +32,66 @@
 
 #include "wifi.h"
 
-#define LED_PIN 2
+char web_page[] = "<!DOCTYPE html><html lang=\"pt-BR\"> <head> <meta charset=\"UTF-8\" /> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" /> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" /> <title>Babygreens web page</title> </head> <body style=\"padding: 20px\"> <h1>Conecte o Babygreens à internet</h1> <form action=\"/\" method=\"post\"> <label for=\"ssid\">SSID:</label> <br /> <input style=\"margin-bottom: 20px\" type=\"text\" id=\"ssid\" name=\"ssid\" /> <br /> <label for=\"pwd\">Senha:</label> <br /> <input style=\"margin-bottom: 20px\" type=\"password\" id=\"pwd\" name=\"pwd\" /> <br /> <button type=\"submit\">Conectar</button> </form> </body></html>";
 
-char on_resp[] = "<!DOCTYPE html><html><head><style type=\"text/css\">html {  font-family: Arial;  display: inline-block;  margin: 0px auto;  text-align: center;}h1{  color: #070812;  padding: 2vh;}.button {  display: inline-block;  background-color: #b30000; //red color  border: none;  border-radius: 4px;  color: white;  padding: 16px 40px;  text-decoration: none;  font-size: 30px;  margin: 2px;  cursor: pointer;}.button2 {  background-color: #364cf4; //blue color}.content {   padding: 50px;}.card-grid {  max-width: 800px;  margin: 0 auto;  display: grid;  grid-gap: 2rem;  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));}.card {  background-color: white;  box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);}.card-title {  font-size: 1.2rem;  font-weight: bold;  color: #034078}</style>  <title>ESP32 WEB SERVER</title>  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">  <link rel=\"icon\" href=\"data:,\">  <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.7.2/css/all.css\"    integrity=\"sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr\" crossorigin=\"anonymous\">  <link rel=\"stylesheet\" type=\"text/css\" ></head><body>  <h2>ESP32 WEB SERVER</h2>  <div class=\"content\">    <div class=\"card-grid\">      <div class=\"card\">        <p><i class=\"fas fa-lightbulb fa-2x\" style=\"color:#c81919;\"></i>     <strong>GPIO2</strong></p>        <p>GPIO state: <strong> ON</strong></p>        <p>          <a href=\"/led2on\"><button class=\"button\">ON</button></a>          <a href=\"/led2off\"><button class=\"button button2\">OFF</button></a>        </p>      </div>    </div>  </div></body></html>";
-
-char off_resp[] = "<!DOCTYPE html><html><head><style type=\"text/css\">html {  font-family: Arial;  display: inline-block;  margin: 0px auto;  text-align: center;}h1{  color: #070812;  padding: 2vh;}.button {  display: inline-block;  background-color: #b30000; //red color  border: none;  border-radius: 4px;  color: white;  padding: 16px 40px;  text-decoration: none;  font-size: 30px;  margin: 2px;  cursor: pointer;}.button2 {  background-color: #364cf4; //blue color}.content {   padding: 50px;}.card-grid {  max-width: 800px;  margin: 0 auto;  display: grid;  grid-gap: 2rem;  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));}.card {  background-color: white;  box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);}.card-title {  font-size: 1.2rem;  font-weight: bold;  color: #034078}</style>  <title>ESP32 WEB SERVER</title>  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">  <link rel=\"icon\" href=\"data:,\">  <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.7.2/css/all.css\"    integrity=\"sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr\" crossorigin=\"anonymous\">  <link rel=\"stylesheet\" type=\"text/css\"></head><body>  <h2>ESP32 WEB SERVER</h2>  <div class=\"content\">    <div class=\"card-grid\">      <div class=\"card\">        <p><i class=\"fas fa-lightbulb fa-2x\" style=\"color:#c81919;\"></i>     <strong>GPIO2</strong></p>        <p>GPIO state: <strong> OFF</strong></p>        <p>          <a href=\"/led2on\"><button class=\"button\">ON</button></a>          <a href=\"/led2off\"><button class=\"button button2\">OFF</button></a>        </p>      </div>    </div>  </div></body></html>";
-
-static const char *TAG = "espressif"; // TAG for debug
-int led_state = 0;
+static const char *TAG = "web_server";
 
 esp_err_t send_web_page(httpd_req_t *req)
 {
-    int response;
-    if (led_state == 0)
-        response = httpd_resp_send(req, off_resp, HTTPD_RESP_USE_STRLEN);
-    else
-        response = httpd_resp_send(req, on_resp, HTTPD_RESP_USE_STRLEN);
-    return response;
+    return httpd_resp_send(req, web_page, HTTPD_RESP_USE_STRLEN);
 }
+
 esp_err_t get_req_handler(httpd_req_t *req)
 {
     return send_web_page(req);
 }
 
-esp_err_t led_on_handler(httpd_req_t *req)
-{
-    gpio_set_level(LED_PIN, 1);
-    led_state = 1;
-    return send_web_page(req);
-}
-
-esp_err_t led_off_handler(httpd_req_t *req)
-{
-    gpio_set_level(LED_PIN, 0);
-    led_state = 0;
-    return send_web_page(req);
-}
-
 esp_err_t new_wifi_config_handler(httpd_req_t *req)
 {
+    char ssid[128] = {0}, pwd[128] = {0}, buf[1024] = {0};
+    int16_t ssid_start_index = 0, ssid_end_index = 0, pwd_start_index = 0, pwd_end_index;
     ESP_LOGI(TAG, "POST request received.");
-    char buf[255] = {0};
-    httpd_req_recv(req, buf, 255);
-    ESP_LOGI(TAG, "Content received: %s", buf);
-    return httpd_resp_send(req, on_resp, HTTPD_RESP_USE_STRLEN);
+    httpd_req_recv(req, buf, 1024);
+    pwd_end_index = strlen(buf);
+    ESP_LOGI(TAG, "Content received (strlen = %d): %s", strlen(buf), buf);
+
+    for (uint16_t i = 0; i < strlen(buf); i++)
+    {
+        buf[i] = (buf[i] == '+') ? ' ' : buf[i];
+
+        if (buf[i] == '=' && buf[i - 1] == 'd' && buf[i - 2] == 'i' && buf[i - 3] == 's' && buf[i - 4] == 's')
+        {
+            ssid_start_index = i + 1;
+        }
+        if (buf[i] == '=' && buf[i - 1] == 'd' && buf[i - 2] == 'w' && buf[i - 3] == 'p')
+        {
+            ssid_end_index = i - 4;
+            pwd_start_index = i + 1;
+            break;
+        }
+    }
+
+    if (ssid_start_index && ssid_end_index && pwd_start_index && pwd_end_index)
+    {
+        for (uint16_t i = ssid_start_index; i < ssid_end_index; i++)
+        {
+            ssid[i - ssid_start_index] = buf[i];
+        }
+        for (uint16_t i = pwd_start_index; i < pwd_end_index; i++)
+        {
+            pwd[i - pwd_start_index] = buf[i];
+        }
+    }
+
+    ESP_LOGI(TAG, "ssid: %s, pwd: %s", ssid, pwd);
+
+    esp_err_t ret = send_web_page(req);
+
+    vTaskDelay(pdMS_TO_TICKS(2500));
+
+    Wifi__ChangeWiFi(ssid, pwd);
+
+    return ret;
 }
 
 httpd_uri_t uri_post = {
@@ -90,58 +106,18 @@ httpd_uri_t uri_get = {
     .handler = get_req_handler,
     .user_ctx = NULL};
 
-httpd_uri_t uri_on = {
-    .uri = "/led2on",
-    .method = HTTP_GET,
-    .handler = led_on_handler,
-    .user_ctx = NULL};
-
-httpd_uri_t uri_off = {
-    .uri = "/led2off",
-    .method = HTTP_GET,
-    .handler = led_off_handler,
-    .user_ctx = NULL};
-
 httpd_handle_t WebServer__Initialize(void)
 {
-    // GPIO initialization
-    esp_rom_gpio_pad_select_gpio(LED_PIN);
-    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
-    led_state = 0;
-
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.send_wait_timeout = 10;
+    config.recv_wait_timeout = 10;
     httpd_handle_t server = NULL;
 
     if (httpd_start(&server, &config) == ESP_OK)
     {
         httpd_register_uri_handler(server, &uri_get);
-        httpd_register_uri_handler(server, &uri_on);
-        httpd_register_uri_handler(server, &uri_off);
         httpd_register_uri_handler(server, &uri_post);
     }
 
     return server;
 }
-
-// void app_main()
-// {
-//     // Initialize NVS
-//     esp_err_t ret = nvs_flash_init();
-//     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-//     {
-//         ESP_ERROR_CHECK(nvs_flash_erase());
-//         ret = nvs_flash_init();
-//     }
-//     ESP_ERROR_CHECK(ret);
-
-//     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-//     connect_wifi();
-
-//     // GPIO initialization
-//     gpio_pad_select_gpio(LED_PIN);
-//     gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
-
-//     led_state = 0;
-//     ESP_LOGI(TAG, "LED Control Web Server is running ... ...\n");
-//     setup_server();
-// }
