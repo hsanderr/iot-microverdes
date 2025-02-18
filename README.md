@@ -1,19 +1,8 @@
 # iot-microverdes
 
-Repositório principal do projeto de microverdes da disciplina Projeto em Internet das Coisas (SEL0373).
+Repositório principal do projeto de microverdes da disciplina Projeto em Internet das Coisas (SEL0373) da Universidade de São Paulo (USP).
 
-## Lista de compras
-
-- Sensor de temperatura ()
-
-## Sugestão de divisão de atividades
-
-- Firmware
-- Hardware
-- Estrutura
-- Plataforma
-
-## Operação do sistema
+Main repository for the microgreens project for the Internet of Things Project (SEL0373) course from University of São Paulo (USP).
 
 ### Fluxo do processo
 
@@ -32,36 +21,3 @@ Caso seja identificado algum problema, o usuário é informado.
 - Umidade do solo (monitorar por sensor e controlar por irrigação)
 - Altura da planta (monitoriar por sensor de ultrassom)
 - Iluminação (monitoriar por sensor e controlar por LED)
-
-
-## A fazer
-
-### Geral
-
-- [ ] Definir e registrar neste arquivo o funcionamento do sistema
-- [ ] Criar lista de compras (max6675)
-- [ ] Dividir atividades
-
-### Firmware
-
-### Hardware
-
-|  **Sensor** |  **Modelo**  | **Preço médio** | **Link** |
-|:-----------:|:------------:|:---------------:|:--------:|
-| Temperatura |    Max6675   |     R$ 20,00    |          |
-|  Humildade  |  Capacitivo  |                 |          |
-|  Distância  | IR reflexivo |     R$ 10,00    |          |
-
-|   **Sistema**   |          **Modelo**         | **Preço médio** |
-|:-----------:|:-----------------------:|:-----------:|
-|  Ventilação |          Cooler         |             |
-|  Irrigação  |     Bomba de aquário    |             |
-|  Irrigação  | Mangueira/Tubo plástico |             |
-|  Irrigação  |    Bico pulverizador    |             |
-|  Iluminação |   Fita LED ou lâmpada   |             |
-| Alimentação |         Fonte 5V        |             |
-
-
-### Estrutura
-
-### Plataforma
